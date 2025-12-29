@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cases Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Lucide icons as SVG components
+        const ChevronDown = () => (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        );
+
+        const ChevronUp = () => (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+        );
+
+        const FileText = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+        );
+
+        const TestCasesDocument = () => {
+            const [expandedSections, setExpandedSections] = useState({});
+
+            const toggleSection = (id) => {
+                setExpandedSections(prev => ({
+                    ...prev,
+                    [id]: !prev[id]
+                }));
+            };
+
+            const testCases = [
+                {
+      id: "TC-1.1-01",
+      userStory: "User Story 1.1 - Supplier Onboarding",
+      scenario: "Submit Valid Supplier Registration with Complete Details",
+      preconditions: "None",
+      testSteps: [
+        "Open supplier registration form.",
+        "Enter all required fields: Company Name, Tax ID, Contact Person, Email, Phone, Bank Account Number.",
+        "Enter Product or Service description.",
+        "Upload certifications (if available).",
+        "Upload Eco certifications and verify (if available).",
+        "Complete Ethical Sourcing Questionnaire (Child Labor, Fair Wages, Safe Conditions).",
+        "Enter Distance to Warehouse (km).",
+        "Select Transport Type from dropdown (Truck/Ship/Train/Air).",
+        "Enter Average Shipment Weight (kg).",
+        "Submit form."
+      ],
+      expectedResult: [
+        "Form submits successfully.",
+        "System validates all mandatory fields before submission.",
+        "Supplier status = 'Pending Approval'.",
+        "Supplier record stored in 'Pending Supplier Applications' table (NOT in main supplier database).",
+        "Confirmation email sent to supplier within 2 minutes.",
+        "Notification sent to Supply Chain Manager.",
+        "All sustainability data (eco certifications, ethical sourcing, distance, transport type, weight) is captured for future carbon footprint calculations."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Missing Required Fields",
+          trigger: "User submits form with one or more required fields empty (e.g., Company Name, Tax ID, Email, or Bank Account).",
+          response: "System shows validation error: 'Please fill in all required fields.'",
+          uiPrompt: "Red error messages appear below empty required fields with asterisks. Submit button remains disabled."
+        },
+        {
+          title: "Duplicate Tax ID",
+          trigger: "Supplier enters Tax ID that already exists in the system.",
+          response: "System rejects submission and displays error: 'Duplicate Tax ID. This supplier is already registered.'",
+          uiPrompt: "Red error text below Tax ID field. Message includes: 'A supplier with this Tax ID already exists.'"
+        },
+        {
+          title: "Duplicate Email",
+          trigger: "Supplier enters email address that already exists in the system.",
+          response: "System blocks submission and shows error: 'This email is already registered. Please use a different email address.'",
+          uiPrompt: "Red border around Email field with inline error message."
+        },
+        {
+          title: "Invalid Transport Type Selection",
+          trigger: "User attempts to manually enter transport type instead of using dropdown.",
+          response: "System only accepts values from dropdown: Truck, Ship, Train, Air.",
+          uiPrompt: "Dropdown field prevents manual entry. Only predefined options selectable."
+        }
+      ]
+    },
+    {
+      id: "TC-1.2-01",
+      userStory: "User Story 1.2 - Supplier Approval",
+      scenario: "Approve Supplier Application",
+      preconditions: "Supply Chain Manager is logged in. Pending supplier applications exist in the system.",
+      testSteps: [
+        "Navigate to 'Pending Suppliers' dashboard list.",
+        "Select a supplier from the list.",
+        "Review all supplier details (company info, certifications, sustainability data).",
+        "Click 'Approve' button.",
+        "Add optional comments.",
+        "Confirm approval."
+      ],
+      expectedResult: [
+        "Supplier status changes to 'Approved'.",
+        "Supplier ID is auto-generated (format: SUP-XXXXX).",
+        "Approval log is saved with: Approver name, Date & time (timestamp), Comments.",
+        "Notification emails sent to supplier and procurement officer within 5 minutes.",
+        "Supplier moved from 'Pending Supplier Applications' table to main Supplier database.",
+        "Supplier can now receive purchase orders."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Reject Supplier Without Reason",
+          trigger: "Manager clicks 'Reject' but does not enter a rejection reason.",
+          response: "System shows validation error: 'Rejection reason is required.'",
+          uiPrompt: "Red text below 'Reason' text area. 'Confirm Reject' button remains disabled until reason is entered."
+        },
+        {
+          title: "Session Timeout During Approval",
+          trigger: "Manager's session expires while viewing supplier details.",
+          response: "System redirects to login page with message: 'Session expired. Please log in again.'",
+          uiPrompt: "Alert banner at top of screen before redirect. Unsaved changes warning if applicable."
+        }
+      ]
+    },
+    {
+      id: "TC-1.2-02",
+      userStory: "User Story 1.2 - Supplier Approval",
+      scenario: "Reject Supplier Application",
+      preconditions: "Supply Chain Manager is logged in. Pending supplier applications exist.",
+      testSteps: [
+        "Navigate to 'Pending Suppliers' dashboard list.",
+        "Select a supplier.",
+        "Click 'Reject' button.",
+        "Enter rejection reason in text field (e.g., 'Incomplete sustainability documentation').",
+        "Add optional comments.",
+        "Click 'Confirm Rejection'."
+      ],
+      expectedResult: [
+        "Supplier status changes to 'Rejected'.",
+        "System logs: Approver name, Date & time (timestamp), Rejection reason, Comments.",
+        "Notification sent to supplier and procurement officer within 5 minutes.",
+        "Supplier remains in 'Pending Supplier Applications' table with 'Rejected' status.",
+        "Supplier cannot receive purchase orders."
+      ],
+      exceptionalScenarios: []
+    },
+    {
+      id: "TC-1.3-01",
+      userStory: "User Story 1.3 - Supplier Performance Calculation",
+      scenario: "Calculate Performance Metrics After Delivery Confirmation",
+      preconditions: "Delivery has been confirmed by Inventory Department.",
+      testSteps: [
+        "Inventory Department confirms delivery in the system.",
+        "Navigate to Supplier Performance screen.",
+        "Verify metrics for the supplier."
+      ],
+      expectedResult: [
+        "System automatically calculates supplier performance metrics after Inventory Department approval: On-Time Delivery Rate (%), Defect Rate (%), Contract Compliance (%), Average Delivery Time (days).",
+        "Calculations are triggered only after Inventory Department confirms the delivery.",
+        "Metrics update in real-time and overwrite previous data.",
+        "Supplier ranking is updated based on total performance score: Excellent (90-100%), Good (75-89%), Poor (<75%).",
+        "Calculation timestamp is logged.",
+        "Updated metrics become available for Supply Chain & Procurement teams."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Calculation Error Due to Missing Delivery Data",
+          trigger: "Delivery is confirmed but critical data (delivery date, quality score, or contract terms) is missing.",
+          response: "System displays warning: 'Unable to calculate performance. Missing delivery data: [specific field].'",
+          uiPrompt: "Yellow warning banner on supplier performance page. 'Update Data' button to add missing information."
+        },
+        {
+          title: "First Delivery for New Supplier",
+          trigger: "This is the supplier's first confirmed delivery.",
+          response: "System calculates initial metrics based on this single delivery. Dashboard shows 'Initial Performance - Based on 1 delivery'.",
+          uiPrompt: "Info badge next to metrics: 'Performance will improve accuracy with more deliveries.'"
+        }
+      ]
+    },
+    {
+      id: "TC-1.4-01",
+      userStory: "User Story 1.4 - Supplier Performance Reporting",
+      scenario: "View Supplier Performance Dashboard",
+      preconditions: "Supply Chain Manager is logged in with appropriate permissions.",
+      testSteps: [
+        "Navigate to 'Supplier Performance' menu.",
+        "Select a supplier from the list.",
+        "View performance dashboard with all metrics."
+      ],
+      expectedResult: [
+        "Dashboard displays all metrics correctly: On-Time Delivery %, Defect Rate %, Contract Compliance %, Average Delivery Time (days).",
+        "System shows visual ranking: Excellent (90-100%), Good (75-89%), Poor (<75%).",
+        "Charts and graphs render properly.",
+        "Historical data is visible for trend analysis.",
+        "Supply Chain Manager can filter and view metrics by date range or delivery period.",
+        "Finance department can access reports for payment prioritization or penalties.",
+        "Procurement officer can view reports to evaluate supplier reliability and update risk scores."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Finance Department Access",
+          trigger: "User with 'Finance' role accesses performance reports.",
+          response: "System displays read-only view. Finance can view all metrics for payment decisions but cannot edit performance data.",
+          uiPrompt: "View-only banner at top: 'Finance Department - Read-Only Access for Payment Prioritization.'"
+        },
+        {
+          title: "Procurement Officer Updates Risk Scores",
+          trigger: "Procurement officer reviews performance and updates supplier risk score.",
+          response: "System allows procurement officer to add risk score notes based on performance data. Risk score changes are logged.",
+          uiPrompt: "Risk Score panel with editable field and 'Save Changes' button. Audit trail shows who updated risk score and when."
+        }
+      ]
+    },
+    {
+      id: "TC-1.4-02",
+      userStory: "User Story 1.4 - Supplier Performance Reporting",
+      scenario: "Export Performance Report as PDF",
+      preconditions: "Supply Chain Manager is viewing supplier performance dashboard.",
+      testSteps: [
+        "Click 'Export as PDF' button.",
+        "Wait for PDF generation."
+      ],
+      expectedResult: [
+        "System generates PDF file with comprehensive supplier performance data.",
+        "PDF downloads automatically to user's device.",
+        "PDF includes: Supplier name, ID, On-Time Delivery %, Defect Rate %, Contract Compliance %, Average Delivery Time, Visual ranking (Excellent/Good/Poor), Charts/graphs, Date range, Export timestamp.",
+        "File name format: 'SupplierPerformance_[SupplierID]_[Date].pdf'"
+      ],
+      exceptionalScenarios: []
+    },
+    {
+      id: "TC-1.5-01",
+      userStory: "User Story 1.5 - Sustainability Metrics Calculation",
+      scenario: "Calculate Carbon Footprint Based on Delivery Data",
+      preconditions: "Delivery data is available with all required fields: Distance, Weight, Transport Type, Delivery Frequency.",
+      testSteps: [
+        "New delivery is recorded in the system with: Distance = 500 km, Weight = 1000 kg, Transport Type = 'Truck', Deliveries per Year = 12.",
+        "System automatically triggers carbon footprint calculation.",
+        "View sustainability metrics for the supplier."
+      ],
+      expectedResult: [
+        "System automatically calculates carbon footprint using formula: (Distance × Weight × Emission Factor × Deliveries per Year) / 1000.",
+        "For Truck: Emission Factor = 0.21 kg CO₂ per ton/km.",
+        "Carbon footprint value is displayed in tons/year.",
+        "Calculation updates whenever new delivery data is recorded.",
+        "Calculation is logged with timestamp."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Missing Transport Type",
+          trigger: "Delivery is recorded without specifying transport type.",
+          response: "System displays error: 'Cannot calculate carbon footprint. Transport type is required.'",
+          uiPrompt: "Red warning on sustainability dashboard. Prompt to 'Update Transport Type' for accurate calculations."
+        },
+        {
+          title: "Different Transport Types",
+          trigger: "System calculates for Ship (Emission Factor = 0.03), Train (0.04), or Air (0.50).",
+          response: "System correctly applies corresponding emission factor based on selected transport type. Dashboard shows comparison: 'Your carbon footprint would be [X]% lower with [alternative transport].'",
+          uiPrompt: "Info tooltip showing emission factors for all transport types for comparison."
+        }
+      ]
+    },
+    {
+      id: "TC-1.5-02",
+      userStory: "User Story 1.5 - Sustainability Metrics Calculation",
+      scenario: "Calculate Overall Sustainability Score",
+      preconditions: "Supplier has provided: Eco certifications, Ethical sourcing questionnaire responses, Delivery data for carbon footprint.",
+      testSteps: [
+        "Review supplier's eco certification status (Uploaded & Verified).",
+        "Review ethical sourcing questionnaire responses (All 3 Yes: No Child Labor, Fair Wages, Safe Conditions).",
+        "Review carbon footprint calculation (e.g., 8 tons/year).",
+        "System automatically calculates sustainability score."
+      ],
+      expectedResult: [
+        "Eco Certification Score: Uploaded & Verified = 3 points, Uploaded but Not Verified = 1 point, Not Provided = 0.",
+        "Ethical Sourcing Score: All Yes = 3 points, 2 Yes = 2 points, 1 Yes = 1 point, All No = 0.",
+        "Carbon Footprint Score: <10 tons = 4 points, 10-25 = 3 points, 25-50 = 2 points, >50 = 1 point, >100 = 0.",
+        "Final Sustainability Score = Eco Certification + Ethical Sourcing + Carbon Footprint Score (maximum 10 points).",
+        "Score is displayed on supplier profile (e.g., 10/10).",
+        "Sustainability calculations refresh whenever new delivery or certification data is saved."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Incomplete Ethical Sourcing Questionnaire",
+          trigger: "Supplier has not completed all three ethical sourcing questions.",
+          response: "System assigns 0 points for unanswered questions. Warning displayed: 'Incomplete ethical sourcing data. Score may be lower.'",
+          uiPrompt: "Yellow badge on sustainability dashboard: 'Questionnaire Incomplete'. Link to 'Request Update from Supplier'."
+        },
+        {
+          title: "Certification Uploaded But Not Verified",
+          trigger: "Supplier uploaded eco certification but admin has not verified it yet.",
+          response: "System assigns 1 point (partial credit). Status shows 'Pending Verification'.",
+          uiPrompt: "Orange status badge: 'Certification Pending Verification'. Admin notification to review and verify."
+        }
+      ]
+    },
+    {
+      id: "TC-1.6-01",
+      userStory: "User Story 1.6 - Sustainability Reporting Retrieval",
+      scenario: "View Sustainability Dashboard with Filters",
+      preconditions: "Procurement officer has access to sustainability reports.",
+      testSteps: [
+        "Navigate to 'Sustainability Dashboard'.",
+        "View supplier sustainability metrics.",
+        "Apply filters: Transport Type, Certification Status, Sustainability Score Range."
+      ],
+      expectedResult: [
+        "Procurement officer can view sustainability metrics: Carbon Footprint (tons/year), Eco Certification Status, Ethical Sourcing Score, Final Sustainability Score (1-10).",
+        "Suppliers with sustainability score < 5 are highlighted in red.",
+        "Filter options work correctly: Transport Type (Truck/Ship/Train/Air), Certification Status (Verified/Pending/Not Provided), Sustainability Score Range (slider or dropdown).",
+        "Dashboard displays trends: Carbon footprint over time, Score changes, Risk levels.",
+        "System supports periodic monthly sustainability reviews.",
+        "Data is sortable by each metric."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "PR Team View-Only Access",
+          trigger: "User with 'PR Department' role accesses sustainability reports.",
+          response: "System shows read-only view for CSR reporting. Edit/delete options are hidden. PR can view and export reports only.",
+          uiPrompt: "Banner message: 'PR Department - Read-Only Access for CSR Reporting.' Export button remains active."
+        },
+        {
+          title: "No Suppliers Match Filter Criteria",
+          trigger: "Procurement officer applies filters that result in no matching suppliers.",
+          response: "System displays message: 'No suppliers found matching your criteria.'",
+          uiPrompt: "Empty state illustration with 'Clear Filters' button."
+        },
+        {
+          title: "Low Sustainability Score Alert",
+          trigger: "Multiple suppliers have scores < 5.",
+          response: "Dashboard shows red alert section: '[X] suppliers have sustainability scores below 5. Action required.'",
+          uiPrompt: "Red notification banner with link to 'View Low-Scoring Suppliers'. Suppliers highlighted in red in table."
+        }
+      ]
+    },
+    {
+      id: "TC-1.6-02",
+      userStory: "User Story 1.6 - Sustainability Reporting Retrieval",
+      scenario: "Export and Share Sustainability Report",
+      preconditions: "Procurement officer is viewing sustainability dashboard.",
+      testSteps: [
+        "Click 'Export Report' button.",
+        "Select export format (PDF, CSV, or Dashboard Export).",
+        "Click 'Download'."
+      ],
+      expectedResult: [
+        "System generates sustainability report in selected format.",
+        "File downloads automatically.",
+        "Export includes: Supplier names, Carbon footprint, Eco certification status, Ethical sourcing scores, Final sustainability scores, Transport types, Trends data.",
+        "File name format: 'SustainabilityReport_[Date].[format]'",
+        "Report can be shared with PR and Corporate Communications teams for CSR reporting."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Monthly Sustainability Review",
+          trigger: "Beginning of new month triggers automatic sustainability review.",
+          response: "System generates monthly sustainability summary report automatically. Procurement officer and PR team receive notification with link to report.",
+          uiPrompt: "Green notification: 'Monthly Sustainability Report for [Month] is ready.' Auto-generated report appears in 'Reports Archive'."
+        }
+      ]
+    },
+    {
+      id: "TC-2.1-01",
+      userStory: "User Story 2.1 - Store Inventory Sync",
+      scenario: "View Live Stock Levels Across All Inventories",
+      preconditions: "Procurement officer is logged in. Store systems are connected and syncing.",
+      testSteps: [
+        "Navigate to 'Central Inventory Dashboard'.",
+        "View stock levels for all items across all stores.",
+        "Verify data refresh timestamp."
+      ],
+      expectedResult: [
+        "Dashboard displays total quantity per item aggregated from all stores.",
+        "Store systems update inventory automatically and daily.",
+        "Last update timestamp is visible for each inventory location.",
+        "Data refreshes in real-time or within configured sync interval.",
+        "Inventory manager has view & update access."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Stock Level Below 50 Units Alert",
+          trigger: "Item stock drops below 50 units in any inventory.",
+          response: "Alert is triggered automatically in procurement dashboard showing: Item name, Current quantity, Last update time, Preferred suppliers.",
+          uiPrompt: "Red alert badge on dashboard with notification bell. Alert panel shows all low-stock items."
+        },
+        {
+          title: "Export Inventory Report",
+          trigger: "Procurement team clicks 'Export Report' button.",
+          response: "System generates comprehensive inventory report in Excel/CSV format with all items, quantities, and locations.",
+          uiPrompt: "Export modal appears with format options (CSV/Excel/PDF). Download starts automatically."
+        }
+      ]
+    },
+    {
+      id: "TC-2.2-01",
+      userStory: "User Story 2.2 - Forecast-Based Procurement",
+      scenario: "Retrieve and Apply Sales Forecast Data",
+      preconditions: "Sales Department Database contains current month forecast. System integration is active.",
+      testSteps: [
+        "Wait for beginning of new month (or trigger manual forecast refresh).",
+        "Navigate to 'Procurement Dashboard'.",
+        "View forecast-based purchase suggestions."
+      ],
+      expectedResult: [
+        "System retrieves monthly sales forecast from Sales Department Database automatically.",
+        "Forecast data refreshes at the beginning of each month.",
+        "Low-stock alerts are adjusted dynamically based on sales trends.",
+        "Purchase suggestions are generated automatically including: Supplier name, Suggested quantity, Estimated cost.",
+        "High-demand items are highlighted in dashboard.",
+        "Forecast confidence level is displayed (if available)."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Forecast Data Unavailable",
+          trigger: "Sales Department Database is unreachable or contains no forecast data.",
+          response: "System displays warning: 'Unable to retrieve sales forecast. Using standard reorder points.'",
+          uiPrompt: "Yellow warning banner on dashboard with 'Retry' button."
+        }
+      ]
+    },
+    {
+      id: "TC-2.3-01",
+      userStory: "User Story 2.3 - Collect Departments Needs",
+      scenario: "Department Submits Item Request",
+      preconditions: "User from any department is logged in.",
+      testSteps: [
+        "Navigate to 'Request Items' page.",
+        "Enter item name/description (e.g., 'Office Printer Paper').",
+        "Enter quantity needed (e.g., 100).",
+        "Select department from dropdown.",
+        "Optionally enter reason/notes.",
+        "Click 'Submit Request'."
+      ],
+      expectedResult: [
+        "Request is auto-assigned a unique Request ID (format: REQ-XXXXX).",
+        "Request status is set to 'Pending Approval'.",
+        "Request is automatically sent to Inventory Officer.",
+        "Confirmation message displays with Request ID.",
+        "Request is logged with timestamp and department name."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Missing Required Fields",
+          trigger: "User attempts to submit without item name or quantity.",
+          response: "System shows validation error: 'Please fill in all required fields.'",
+          uiPrompt: "Red error messages below empty required fields. Submit button disabled."
+        }
+      ]
+    },
+    {
+      id: "TC-2.3-02",
+      userStory: "User Story 2.3 - Collect Departments Needs",
+      scenario: "Supply Chain Manager Reviews and Approves Request",
+      preconditions: "Pending department requests exist. Supply Chain Manager is logged in.",
+      testSteps: [
+        "Navigate to 'Pending Department Requests'.",
+        "Select a request to review.",
+        "Review item details and quantity.",
+        "Add comments (optional).",
+        "Click 'Approve'.",
+        "Confirm approval."
+      ],
+      expectedResult: [
+        "Request status changes to 'Approved'.",
+        "System logs: Approver name, Date & time (timestamp), Comments.",
+        "Purchase order or internal supply action is initiated automatically.",
+        "Notification sent to requesting department within 5 minutes.",
+        "Request appears in 'Approved Requests' list."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Reject Request",
+          trigger: "Manager clicks 'Reject' and enters rejection reason.",
+          response: "Request status changes to 'Rejected'. Rejection reason and timestamp are logged. Notification sent to department.",
+          uiPrompt: "Rejection reason text area is mandatory. Red confirmation dialog before rejecting."
+        },
+        {
+          title: "Review Time Exceeds 24 Hours",
+          trigger: "Request remains pending for more than 24 hours.",
+          response: "System sends escalation alert to Supply Chain Manager and their supervisor.",
+          uiPrompt: "Request is highlighted in orange on pending requests list with 'Overdue' badge."
+        }
+      ]
+    },
+    {
+      id: "TC-2.3-03",
+      userStory: "User Story 2.3 - Collect Departments Needs",
+      scenario: "Mark Request as Fulfilled",
+      preconditions: "Approved request exists. Items have been received.",
+      testSteps: [
+        "Navigate to approved requests list.",
+        "Select request where items have been received.",
+        "Click 'Mark as Fulfilled'.",
+        "Confirm item delivery."
+      ],
+      expectedResult: [
+        "Request status changes to 'Fulfilled' or 'Supplied'.",
+        "Fulfillment timestamp is logged.",
+        "Final notification sent to requesting department.",
+        "Request moves to 'Completed Requests' archive."
+      ],
+      exceptionalScenarios: []
+    },
+    {
+      id: "TC-2.4-01",
+      userStory: "User Story 2.4 - Urgent Order Notification",
+      scenario: "Receive Notification for Urgent Customer Order",
+      preconditions: "Sales representative has marked an order as 'Urgent'. Procurement officer is logged in.",
+      testSteps: [
+        "Sales rep marks customer order as 'Urgent'.",
+        "Wait for notification (should be < 1 minute).",
+        "Check Procurement Dashboard."
+      ],
+      expectedResult: [
+        "Notification is triggered automatically within 1 minute.",
+        "Notification includes: Item name, Required quantities, Delivery deadline, Customer priority level (if available).",
+        "Procurement Dashboard highlights urgent request in RED section/tab.",
+        "Urgent order appears at top of procurement queue with 'URGENT' badge.",
+        "Notification is logged with timestamp for audit tracking.",
+        "Email/SMS notification sent to procurement officer (if configured)."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Notification Service Failure",
+          trigger: "Notification service is temporarily unavailable.",
+          response: "System automatically retries notification delivery. Dashboard alert displays: 'Notification service temporarily unavailable. Checking for urgent orders...'",
+          uiPrompt: "Yellow alert banner on dashboard. Red 'URGENT ORDERS' section still updates regardless of notification status."
+        }
+      ]
+    },
+    {
+      id: "TC-2.5-01",
+      userStory: "User Story 2.5 - Create Purchase Order",
+      scenario: "Create Valid Purchase Order",
+      preconditions: "Procurement officer is logged in. Approved suppliers exist in system.",
+      testSteps: [
+        "Navigate to 'Create Purchase Order' page.",
+        "Select supplier from approved suppliers dropdown.",
+        "Select item(s) and enter quantity (≥10) and unit price.",
+        "Verify total cost is auto-calculated correctly.",
+        "Select expected delivery date (within 2 months).",
+        "Select requesting department.",
+        "Confirm inventory space availability.",
+        "Click 'Create PO'."
+      ],
+      expectedResult: [
+        "System validates supplier is approved (from User Story 1.2).",
+        "System checks items are not already in sufficient stock.",
+        "System confirms space available in inventory.",
+        "PO is created successfully with status 'Pending Approval'.",
+        "Unique PO number is generated (format: PO-XXXXX).",
+        "Total cost is calculated automatically (quantity × unit price for all items).",
+        "Confirmation message displays: 'Purchase Order [PO-XXXXX] created successfully.'",
+        "Notifications sent to Supply Chain Manager, Finance Department, and Legal Department within 3 minutes."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Unapproved Supplier Selected",
+          trigger: "User attempts to create PO with supplier not in approved list (should not be possible via dropdown).",
+          response: "System blocks PO creation and shows error: 'Selected supplier is not approved.'",
+          uiPrompt: "Red error banner. Only approved suppliers appear in dropdown."
+        },
+        {
+          title: "Quantity Below Minimum",
+          trigger: "User enters quantity < 10 for any item.",
+          response: "System shows validation error: 'Minimum order quantity is 10 units.'",
+          uiPrompt: "Red border around quantity field with inline error message."
+        },
+        {
+          title: "Delivery Date Too Far",
+          trigger: "User selects delivery date more than 2 months in the future.",
+          response: "System shows error: 'Delivery date cannot exceed 2 months from today.'",
+          uiPrompt: "Red error below date picker. Date picker disables dates beyond 2-month limit."
+        },
+        {
+          title: "Insufficient Inventory Space",
+          trigger: "Inventory does not have space for ordered quantity.",
+          response: "System shows warning: 'Insufficient warehouse space for this order. Contact inventory manager.'",
+          uiPrompt: "Orange warning modal with options to 'Reduce Quantity' or 'Contact Inventory Manager'."
+        },
+        {
+          title: "Items Already in Sufficient Stock",
+          trigger: "Selected items already have sufficient stock levels.",
+          response: "System displays warning: 'Items already in sufficient stock. Current levels: [X] units. Proceed anyway?'",
+          uiPrompt: "Yellow confirmation modal with 'Cancel' and 'Proceed Anyway' buttons."
+        }
+      ]
+    },
+    {
+      id: "TC-2.6-01",
+      userStory: "User Story 2.6 - Approve/Reject Purchase Order",
+      scenario: "Supply Chain Manager Approves Purchase Order",
+      preconditions: "Pending PO exists. Supply Chain Manager is logged in.",
+      testSteps: [
+        "Navigate to 'Pending Purchase Orders' within 48 hours of PO creation.",
+        "Select PO to review.",
+        "Review all PO details (supplier, items, quantities, cost, delivery date).",
+        "Add comments (optional).",
+        "Click 'Approve'.",
+        "Confirm approval."
+      ],
+      expectedResult: [
+        "PO status updates automatically to 'Approved'.",
+        "System logs: Approver name, Date & time (timestamp), Comments.",
+        "Notification sent to procurement officer instantly.",
+        "Notification sent to supplier with PO details.",
+        "PO moves to 'Active Purchase Orders' list.",
+        "Finance department receives approval notification for payment processing."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Reject Purchase Order",
+          trigger: "Manager clicks 'Reject' and enters rejection reason.",
+          response: "PO status changes to 'Rejected'. System logs: Approver name, timestamp, rejection reason. Notification sent to procurement officer instantly.",
+          uiPrompt: "Rejection reason text area is mandatory (red border if empty). Red confirmation dialog: 'Are you sure you want to reject this PO?'"
+        },
+        {
+          title: "Approval Not Completed Within 48 Hours",
+          trigger: "PO remains pending for more than 48 hours.",
+          response: "System sends escalation notification to Supply Chain Manager and senior management.",
+          uiPrompt: "PO is highlighted in red on pending list with 'OVERDUE' badge."
+        }
+      ]
+    },
+    {
+      id: "TC-2.7-01",
+      userStory: "User Story 2.7 - Track Purchase Order Status",
+      scenario: "View and Monitor Purchase Order Status",
+      preconditions: "Procurement officer is logged in. Multiple POs exist with various statuses.",
+      testSteps: [
+        "Navigate to 'Purchase Orders' page.",
+        "View list of all purchase orders.",
+        "Apply filters (by supplier, date range, or status).",
+        "Select specific PO to view detailed status."
+      ],
+      expectedResult: [
+        "PO list displays with real-time status for each order.",
+        "Status options visible: Pending, Approved, Shipped, Delivered, Cancelled.",
+        "Filter options work correctly: By supplier (dropdown), By date range (date picker), By status (checkbox/dropdown).",
+        "PO details show complete tracking history with timestamps.",
+        "Status updates automatically from supplier confirmations.",
+        "Color coding: Pending (Yellow), Approved (Blue), Shipped (Purple), Delivered (Green), Cancelled (Red)."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "No POs Match Filter Criteria",
+          trigger: "User applies filters that result in no matching POs.",
+          response: "System displays message: 'No purchase orders found matching your criteria.'",
+          uiPrompt: "Empty state illustration with 'Clear Filters' button."
+        },
+        {
+          title: "Automatic Status Update from Supplier",
+          trigger: "Supplier confirms shipment or delivery in their system.",
+          response: "PO status updates automatically in real-time. Procurement officer receives notification of status change.",
+          uiPrompt: "Green toast notification: 'PO [PO-XXXXX] status updated to [Status].' Status badge changes color on PO list."
+        }
+      ]
+    },
+    {
+      id: "TC-3.1-01",
+      userStory: "User Story 3.1 - Promotion Stock Check",
+      scenario: "Share Stock Data with Marketing",
+      preconditions: "Inventory data is up-to-date in the system.",
+      testSteps: [
+        "Marketing team logs in and navigates to 'Product Inventory'.",
+        "Selects a product to view stock levels."
+      ],
+      expectedResult: [
+        "Marketing sees correct live stock values for all warehouses.",
+        "Stock data refreshes in real-time (updates within 30 seconds of inventory changes).",
+        "Total available stock is displayed prominently."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Stock Level Below 100 Units",
+          trigger: "Product stock falls below 100 units.",
+          response: "System displays automatic warning: 'Low Stock Alert: Only [X] units available.'",
+          uiPrompt: "Yellow warning banner on product page."
+        },
+        {
+          title: "Stock Level Below 50 Units",
+          trigger: "Marketing attempts to launch promotion for product with < 50 units.",
+          response: "System blocks promotion and displays error: 'Cannot launch promotion. Minimum 50 units required.'",
+          uiPrompt: "Red error modal with 'Request Replenishment' button."
+        }
+      ]
+    },
+    {
+      id: "TC-3.2-01",
+      userStory: "User Story 3.2 - Auto-Replenishment Suggestion",
+      scenario: "Generate Automatic Purchase Order",
+      preconditions: "Product stock has fallen below reorder point.",
+      testSteps: [
+        "System detects low stock level.",
+        "Navigate to 'Suggested Purchase Orders'.",
+        "View generated PO draft."
+      ],
+      expectedResult: [
+        "Draft PO is created automatically with correct: Supplier, Item, Quantity (based on reorder formula), Expected delivery date.",
+        "PO status = 'Draft'.",
+        "Procurement officer receives notification.",
+        "PO is editable before final submission."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Procurement Officer Edits Draft PO",
+          trigger: "Officer modifies quantity or supplier in draft PO.",
+          response: "System saves changes and updates PO with 'Modified' tag.",
+          uiPrompt: "Success message: 'Changes saved. Review before submitting.'"
+        }
+      ]
+    },
+    {
+      id: "TC-3.3-01",
+      userStory: "User Story 3.3 - Stock Transfer Between Warehouses",
+      scenario: "Complete Successful Stock Transfer",
+      preconditions: "Source warehouse has sufficient stock (≥ transfer quantity). User has transfer permissions.",
+      testSteps: [
+        "Navigate to 'Stock Transfer' page.",
+        "Select source warehouse, destination warehouse, product, and quantity (e.g., 100 units).",
+        "Verify quantity ≥ 20 units.",
+        "Click 'Initiate Transfer'.",
+        "Confirm transfer."
+      ],
+      expectedResult: [
+        "Transfer status = 'In Transit'.",
+        "Quantity is deducted from source warehouse immediately.",
+        "Transfer order is created with tracking number.",
+        "Destination warehouse receives notification.",
+        "Upon completion, quantity is added to destination warehouse and status changes to 'Completed'."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Insufficient Stock at Source",
+          trigger: "User attempts to transfer more units than available at source warehouse.",
+          response: "System blocks transfer and displays error: 'Insufficient stock. Available: [X] units.'",
+          uiPrompt: "Red error text below quantity field."
+        },
+        {
+          title: "Transfer Quantity Below Minimum",
+          trigger: "User enters quantity < 20 units.",
+          response: "System shows validation error: 'Minimum transfer quantity is 20 units.'",
+          uiPrompt: "Red border around quantity field with inline error."
+        }
+      ]
+    },
+    {
+      id: "TC-3.4-01",
+      userStory: "User Story 3.4 - Store Replenishment Request",
+      scenario: "Submit Valid Replenishment Request",
+      preconditions: "Store manager is logged in.",
+      testSteps: [
+        "Navigate to 'Request Replenishment'.",
+        "Select product and enter quantity (e.g., 50 units).",
+        "Enter justification.",
+        "Submit request."
+      ],
+      expectedResult: [
+        "Request status = 'Pending'.",
+        "Request is logged with: Request ID, Store location, Product, Quantity, Timestamp.",
+        "Warehouse manager receives notification within 3 minutes.",
+        "Confirmation message displayed to store manager."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Quantity Below Minimum",
+          trigger: "Store manager enters quantity < 20 units.",
+          response: "System shows validation error: 'Minimum request quantity is 20 units.'",
+          uiPrompt: "Red error message below quantity field, submit button disabled."
+        }
+      ]
+    },
+    {
+      id: "TC-3.5-01",
+      userStory: "User Story 3.5 - Store Replenishment Request Approval",
+      scenario: "Approve Replenishment Request",
+      preconditions: "Pending replenishment requests exist. Warehouse manager is logged in.",
+      testSteps: [
+        "Navigate to 'Pending Replenishment Requests'.",
+        "Select a request.",
+        "Click 'Approve'.",
+        "Confirm approval."
+      ],
+      expectedResult: [
+        "Request status = 'Approved'.",
+        "Transfer order is generated automatically.",
+        "Warehouse stock is reduced by requested quantity.",
+        "Store receives notification with estimated delivery time.",
+        "Delivery tracking becomes available."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Reject Request Without Reason",
+          trigger: "Manager clicks 'Reject' without entering reason.",
+          response: "System shows validation error: 'Rejection reason is required.'",
+          uiPrompt: "Red text below reason field, 'Reject' button disabled until text entered."
+        }
+      ]
+    },
+    {
+      id: "TC-3.5-02",
+      userStory: "User Story 3.5 - Store Replenishment Request Approval",
+      scenario: "Confirm Delivery to Store",
+      preconditions: "Approved transfer is in transit.",
+      testSteps: [
+        "Store manager navigates to 'Incoming Deliveries'.",
+        "Selects transfer order.",
+        "Verifies received quantity.",
+        "Clicks 'Confirm Delivery'."
+      ],
+      expectedResult: [
+        "Transfer status = 'Completed'.",
+        "Store inventory increases by delivered quantity.",
+        "Delivery confirmation is logged with timestamp.",
+        "Warehouse receives delivery confirmation notification."
+      ],
+      exceptionalScenarios: []
+    },
+    {
+      id: "TC-3.6-01",
+      userStory: "User Story 3.6 - Manufacturing Defect Handling",
+      scenario: "Mark Product as Manufacturing Defect",
+      preconditions: "Defective products have been identified. User has appropriate permissions.",
+      testSteps: [
+        "Navigate to 'Quality Control' or 'Returns'.",
+        "Select defective products.",
+        "Click 'Mark as Manufacturing Defect'.",
+        "Enter defect details and quantity.",
+        "Submit."
+      ],
+      expectedResult: [
+        "Product status changes to 'Manufacturing Defect'.",
+        "Return Order is created automatically.",
+        "Manufacturing department receives notification with defect details.",
+        "Products are flagged for quality review.",
+        "Inventory count is adjusted."
+      ],
+      exceptionalScenarios: []
+    },
+    {
+      id: "TC-3.7-01",
+      userStory: "User Story 3.7 - Raw Material Issue Handling",
+      scenario: "Mark Product as Raw Material Issue",
+      preconditions: "Products with raw material issues identified.",
+      testSteps: [
+        "Navigate to quality control system.",
+        "Select affected products.",
+        "Click 'Mark as Raw Material Issue'.",
+        "Specify raw material problem and supplier.",
+        "Submit."
+      ],
+      expectedResult: [
+        "Product status = 'Raw Material Issue'.",
+        "Supplier Return Order is generated.",
+        "Supplier receives notification with issue details.",
+        "Quality team and procurement are notified.",
+        "Return shipping label is generated if applicable."
+      ],
+      exceptionalScenarios: []
+    },
+    {
+      id: "TC-3.8-01",
+      userStory: "User Story 3.8 - Non-Returnable Products Handling",
+      scenario: "Mark Product as Non-Returnable",
+      preconditions: "Products identified as non-returnable (expired, damaged beyond repair, contaminated).",
+      testSteps: [
+        "Navigate to 'Inventory Management'.",
+        "Select non-returnable products.",
+        "Click 'Mark as Non-Returnable'.",
+        "Enter reason and disposal method.",
+        "Submit."
+      ],
+      expectedResult: [
+        "Product status = 'Non-Returnable'.",
+        "Disposal Order is created and available for review.",
+        "Compliance department receives notification (for regulatory compliance).",
+        "Finance department receives notification (for write-off processing).",
+        "Products are moved to 'Awaiting Disposal' inventory status.",
+        "Disposal tracking documentation is generated."
+      ],
+      exceptionalScenarios: []
+    },
+    {
+      id: "TC-4.1-01",
+      userStory: "User Story 4.1 - Real-Time Stock Updates with E-Commerce",
+      scenario: "Sync Stock Updates from PO Delivery to E-Commerce",
+      preconditions: "PO delivery has been received and confirmed in inventory system. E-commerce platform integration is active.",
+      testSteps: [
+        "Procurement officer confirms PO delivery in system.",
+        "Inventory database updates with new stock quantities.",
+        "Wait for e-commerce sync (should be real-time).",
+        "Check product availability on e-commerce platform."
+      ],
+      expectedResult: [
+        "Stock database updates automatically once PO deliveries are received.",
+        "Procurement system sends real-time stock data to E-Commerce platform within seconds.",
+        "E-Commerce displays only verified 'in-stock' quantities from synced data.",
+        "Product pages show updated stock quantities immediately.",
+        "Stock sync is logged with timestamp for audit purposes."
+      ],
+      exceptionalScenarios: [
+        {
+          title: "Stock Level = 0",
+          trigger: "Product stock reaches 0 after orders or stock adjustments.",
+          response: "E-commerce platform automatically marks product as 'Out of Stock'. Product listing shows 'Out of Stock' badge.",
+          uiPrompt: "Red 'Out of Stock' badge on product page. 'Notify Me When Available' button appears for customers."
+        },
+        {
+          title: "Stock Level < 10",
+          trigger: "Product stock falls below 10 units.",
+          response: "E-commerce platform displays 'Limited Stock' warning. Shows exact quantity remaining (e.g., 'Only 7 left in stock').",
+          uiPrompt: "Orange 'Limited Stock' badge. Urgency message: 'Only [X] left - Order soon!'"
+        },
+        {
+          title: "Sync Failure to E-Commerce Platform",
+          trigger: "E-commerce API is temporarily unavailable or sync fails.",
+          response: "System logs sync failure and automatically retries every 5 minutes. Alert sent to IT/Operations team. Last successful sync timestamp is displayed.",
+          uiPrompt: "Dashboard shows sync status indicator. Red alert: 'E-commerce sync delayed. Last successful sync: [timestamp].' Auto-retry in progress."
+        }
+    ]
+    }
+];
+
+            return (
+                <div className="min-h-screen bg-gray-50 p-8">
+                    <div className="max-w-6xl mx-auto">
+                        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                            <div className="flex items-center gap-3 mb-2">
+                                <FileText className="w-8 h-8 text-green-700" />
+                                <h1 className="text-3xl font-bold text-gray-800">Test Cases Documentation</h1>
+                            </div>
+                            <p className="text-gray-600">Supplier Management & Inventory Control System</p>
+                        </div>
+
+                        {testCases.map((tc) => (
+                            <div key={tc.id} className="mb-6 bg-white rounded-lg shadow-sm overflow-hidden">
+                                <div 
+                                    className="bg-green-700 text-white p-4 flex justify-between items-center cursor-pointer hover:bg-green-900 transition-colors"
+                                    onClick={() => toggleSection(tc.id)}
+                                >
+                                    <div>
+                                        <h2 className="text-xl font-bold">{tc.id}</h2>
+                                        <p className="text-sm text-orange-100">{tc.userStory}</p>
+                                    </div>
+                                    {expandedSections[tc.id] ? <ChevronUp /> : <ChevronDown />}
+                                </div>
+
+                                {expandedSections[tc.id] && (
+                                    <div className="p-6">
+                                        <div className="grid grid-cols-1 gap-4">
+                                            <div className="bg-orange-50 border-l-4 border-orange-500 p-4">
+                                                <h3 className="font-bold text-gray-800 mb-2">Scenario</h3>
+                                                <p className="text-gray-700">{tc.scenario}</p>
+                                            </div>
+
+                                            <div className="bg-gray-50 border-l-4 border-gray-400 p-4">
+                                                <h3 className="font-bold text-gray-800 mb-2">Pre-conditions</h3>
+                                                <p className="text-gray-700">{tc.preconditions}</p>
+                                            </div>
+
+                                            <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                                <h3 className="font-bold text-gray-800 mb-2">Test Steps</h3>
+                                                <ol className="list-decimal list-inside space-y-2">
+                                                    {tc.testSteps.map((step, idx) => (
+                                                        <li key={idx} className="text-gray-700">{step}</li>
+                                                    ))}
+                                                </ol>
+                                            </div>
+
+                                            <div className="bg-green-50 border-l-4 border-green-500 p-4">
+                                                <h3 className="font-bold text-gray-800 mb-2">Expected Result</h3>
+                                                <ul className="space-y-2">
+                                                    {tc.expectedResult.map((result, idx) => (
+                                                        <li key={idx} className="flex items-start">
+                                                            <span className="text-green-600 mr-2">✓</span>
+                                                            <span className="text-gray-700">{result}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+
+                                            {tc.exceptionalScenarios.length > 0 && (
+                                                <div className="bg-red-50 border-l-4 border-red-500 p-4">
+                                                    <h3 className="font-bold text-gray-800 mb-4">Exceptional Scenarios</h3>
+                                                    {tc.exceptionalScenarios.map((scenario, idx) => (
+                                                        <div key={idx} className="mb-4 last:mb-0 bg-white p-4 rounded border border-red-200">
+                                                            <h4 className="font-semibold text-red-700 mb-2">{scenario.title}</h4>
+                                                            <div className="space-y-2 text-sm">
+                                                                <div>
+                                                                    <span className="font-medium text-gray-700">Trigger Condition: </span>
+                                                                    <span className="text-gray-600">{scenario.trigger}</span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="font-medium text-gray-700">Expected Response: </span>
+                                                                    <span className="text-gray-600">{scenario.response}</span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="font-medium text-gray-700">UI/UX Prompt: </span>
+                                                                    <span className="text-gray-600">{scenario.uiPrompt}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<TestCasesDocument />, document.getElementById('root'));
+    </script>
+</body>
+</html>
